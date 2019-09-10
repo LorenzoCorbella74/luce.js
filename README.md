@@ -23,6 +23,9 @@
 
 # Documentation
 
+## Demo
+Check the [sample app](https://github.com/LorenzoCorbella74/sample-app-for-luce.js) running an (almost) updated version of the framework.
+
 ## Bootstrap
 
 Just import the framework and register the component:
