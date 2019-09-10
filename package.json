@@ -27,6 +27,10 @@
   ],
   "author": "Lorenzo Corbella",
   "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/LorenzoCorbella74/luce.js"
+  },
   "dependencies": {
     "lit-html": "^1.1.2",
     "lodash.get": "^4.4.2",
