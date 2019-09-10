@@ -1,0 +1,42 @@
+{
+  "name": "lucejs",
+  "version": "0.1.1",
+  "description": "my personal front end framework",
+  "main": "dist/index.js",
+  "umd:main": "dist/index.umd.js",
+  "module": "dist/index.mjs",
+  "source": "src/index.js",
+  "scripts": {
+    "build": "microbundle --name lucejs",
+    "lint": "standard --fix",
+    "test": "jest",
+    "coverage": "jest --coverage",
+    "watch": "jest --watch"
+  },
+  "standard": {
+    "env": {
+      "jest": true
+    }
+  },
+  "keywords": [
+    "vanillajs",
+    "framework",
+    "front_end",
+    "lit-html",
+    "on-change"
+  ],
+  "author": "Lorenzo Corbella",
+  "license": "ISC",
+  "dependencies": {
+    "lit-html": "^1.1.2",
+    "lodash.get": "^4.4.2",
+    "lodash.set": "^4.3.2",
+    "on-change": "^1.6.2"
+  },
+  "devDependencies": {
+    "babel-preset-env": "^1.7.0",
+    "jest": "^24.9.0",
+    "microbundle": "^0.11.0",
+    "standard": "^14.1.0"
+  }
+}
