@@ -1,6 +1,6 @@
 # Luce.js
 
- Yet another Front end framework with all the main features of the "famous" FE framework, developed only to prove myself that "we can do it". To have better performance than the solutions adopting Virtual DOM I have used the Templating & Rendering engine of [lit-html](https://github.com/polymer/lit-html) while for data reactivity the library [on-change](https://github.com/sindresorhus/on-change) has been used.
+Yet another Front end framework with all the main features of the "famous" JS frameworks, developed only to prove myself that "we can do it". To have better performance than the solutions adopting Virtual DOM I have used the Templating & Rendering engine of [lit-html](https://github.com/polymer/lit-html) while for data reactivity the library [on-change](https://github.com/sindresorhus/on-change) has been used.
 
 ## FEATURES
 - [x] Components, nested components and multiple istances of the same component
