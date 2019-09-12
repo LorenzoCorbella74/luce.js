@@ -127,8 +127,8 @@ window.onload = function () {
         .addRoute('/about/:id/:counter', 'about-component')
         .ifNotFound('not-found-component')
         .start()
-        .beforeChange( ($e)=> $e.main.classList.add('fade'))
-        .afterChange( ($e)=> $e.main.classList.remove('fade'))
+        .beforeChange(($e)=> $e.main.classList.add('fade'))
+        .afterChange(($e)=> $e.main.classList.remove('fade'))
 
 }
 ```
