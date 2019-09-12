@@ -1,7 +1,7 @@
 import Watcher from './watcher'
 import router from './router'
 import http from './http'
-import logger from './logger';
+import logger from './logger'
 
 // external dependancies
 import set from 'lodash.set'
@@ -10,28 +10,28 @@ import { render } from 'lit-html'
 import onChange from 'on-change'
 
 export default class Luce {
-  constructor(main, options = {}) {
-    this.tempEvents = {};
-    this.events = {};
-    this.componentsRegistry = {};
-    this.istances = [];
-    this.main = main;
-    this.plug('router', router(this, main));
-    this.plug('http', http);
-    this.plug("$log", logger(options.debug, this));
+  constructor (main, options = {}) {
+    this.tempEvents = {}
+    this.events = {}
+    this.componentsRegistry = {}
+    this.istances = []
+    this.main = main
+    this.plug('router', router(this, main))
+    this.plug('http', http)
+    this.plug('$log', logger(options.debug, this))
   }
 
   // to extend obj/funzioni etc...
-  plug(name, fn) {
-    this[name] = fn;
+  plug (name, fn) {
+    this[name] = fn
   }
 
-  addComponent(key, factoryFn) {
-    this.componentsRegistry[key] = factoryFn;
-    return this;
+  addComponent (key, factoryFn) {
+    this.componentsRegistry[key] = factoryFn
+    return this
   }
 
-  propagateChange(a, path) {
+  propagateChange (a, path) {
     const sonSInstance = this.istances.filter(e => e.parentId === a.id)
     sonSInstance.forEach(sonIstance => {
       if (path && get(sonIstance.model, path)) {
@@ -46,7 +46,7 @@ export default class Luce {
     })
   }
 
-  proxyMe(source, a) {
+  proxyMe (source, a) {
     const $e = this
     a.model = onChange(source, function (path, value, previousValue) {
       // this.$log.log('Model:', this);
@@ -67,7 +67,7 @@ export default class Luce {
     })
   }
 
-  isInDadAndChild(obj, arr) {
+  isInDadAndChild (obj, arr) {
     if (obj === null || arr === undefined) return
     for (let a = 0; a < arr.length; a++) {
       const key = arr[a]
@@ -78,7 +78,7 @@ export default class Luce {
     return false
   }
 
-  createOrGetCachedIstance(key, id, element, props, parent) {
+  createOrGetCachedIstance (key, id, element, props, parent) {
     const $e = this
     if (!id) {
       const randomId = Math.floor(Math.random() * 1000000)
@@ -107,7 +107,7 @@ export default class Luce {
     }
   }
 
-  initComputed(scope, computed) {
+  initComputed (scope, computed) {
     scope._computedWatchers = Object.create(null)
     for (const key in computed) {
       const valueFn = computed[key]
@@ -117,8 +117,8 @@ export default class Luce {
         const props = {
           configurable: true,
           enumerable: true,
-          set() { },
-          get() {
+          set () { },
+          get () {
             const watcher = scope._computedWatchers && scope._computedWatchers[key]
             if (watcher) return watcher.value
           }
@@ -128,7 +128,7 @@ export default class Luce {
     }
   }
 
-  checkComponentThree(root, componentInstance) {
+  checkComponentThree (root, componentInstance) {
     const child = root.querySelectorAll('[data-component]')
     const props = root.querySelectorAll('[data-props]')
     child.forEach(element => {
@@ -164,7 +164,7 @@ export default class Luce {
     })
   }
 
-  compiledTemplate(component) {
+  compiledTemplate (component) {
     return component.template.call(Object.assign({
       name: component.name,
       id: component.id,
@@ -172,7 +172,7 @@ export default class Luce {
     }))
   }
 
-  rootRender(root, key, urlParams) {
+  rootRender (root, key, urlParams) {
     this.router.params = Object.assign({}, urlParams)
     const componentInstance = this.createOrGetCachedIstance(key, null, root, null, root)
     render(this.compiledTemplate(componentInstance), root)
@@ -183,8 +183,8 @@ export default class Luce {
     // this.$log.log('Components istances: ', this.istances);
   }
 
-  getTree(node, component) {
-    let r = { tag: node.nodeName, element: node, component: component }
+  getTree (node, component) {
+    const r = { tag: node.nodeName, element: node, component: component }
     for (let i = 0; i < node.attributes.length; i++) {
       const a = node.attributes[i]
       r[a.nodeName] = a.nodeValue
@@ -216,17 +216,17 @@ export default class Luce {
     return r
   }
 
-  notAlreadyPresent(id, item) {
+  notAlreadyPresent (id, item) {
     const result = this.events[id].findIndex(e => e.element === item.element && e.type === item.type && e.action === item.action)
     return result === -1
   }
 
-  containsObject(id, item) {
+  containsObject (id, item) {
     const result = this.tempEvents[id].findIndex(e => e.element === item.element && e.type === item.type && e.action === item.action)
     return result !== -1
   }
 
-  checkEventList(componentInstance) {
+  checkEventList (componentInstance) {
     // this.$log.log(this.events[componentInstance.id], this.tempEvents[componentInstance.id]);
     const index = []
     for (let x = 0; x < this.events[componentInstance.id].length; x++) {
@@ -245,7 +245,7 @@ export default class Luce {
     }
   }
 
-  checkComponentList() {
+  checkComponentList () {
     const $e = this
     for (let a = 0; a < this.istances.length; a++) {
       const instance = this.istances[a]
@@ -263,7 +263,7 @@ export default class Luce {
     }
   }
 
-  mapEvents(root, componentInstance) {
+  mapEvents (root, componentInstance) {
     this.tempEvents = {}
     this.events[componentInstance.id] = this.events[componentInstance.id] || []
     this.tempEvents[componentInstance.id] = this.tempEvents[componentInstance.id] || []
@@ -297,7 +297,7 @@ export default class Luce {
     // this.$log.log('Events: ', this.events);
   }
 
-  addListners(htmlElement, componentInstance) {
+  addListners (htmlElement, componentInstance) {
     const $e = this
     htmlElement.element.addEventListener(htmlElement.type, function (e) {
       // passing the model and a reference to events, router and the html element itself
@@ -308,7 +308,7 @@ export default class Luce {
     })
   }
 
-  removeListners(htmlElement, componentInstance) {
+  removeListners (htmlElement, componentInstance) {
     const $e = this
     htmlElement.element.removeEventListener(htmlElement.type, function (e) {
       // passing the model and a reference to events, router and the html element itself
@@ -319,7 +319,7 @@ export default class Luce {
     })
   }
 
-  removeAllListnersInPage() {
+  removeAllListnersInPage () {
     this.istances.forEach(istance => {
       this.events[istance.id].forEach(event => {
         this.removeListners(event, istance)
