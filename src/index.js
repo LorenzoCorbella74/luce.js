@@ -1,33 +1,41 @@
 import Watcher from './watcher'
 import router from './router'
 import http from './http'
+import logger from './logger';
 
+// external dependancies
 import set from 'lodash.set'
 import get from 'lodash.get'
 import { render } from 'lit-html'
 import onChange from 'on-change'
 
 export default class Luce {
-  constructor (main) {
-    this.tempEvents = {}
-    this.events = {}
-    this.componentsRegistry = {}
-    this.istances = []
-    this.main = main
-    this.router = router(this, main)
-    this.http = http
+  constructor(main, options = {}) {
+    this.tempEvents = {};
+    this.events = {};
+    this.componentsRegistry = {};
+    this.istances = [];
+    this.main = main;
+    this.plug('router', router(this, main));
+    this.plug('http', http);
+    this.plug("$log", logger(options.debug, this));
   }
 
-  addComponent (key, factoryFn) {
-    this.componentsRegistry[key] = factoryFn
-    return this
+  // to extend obj/funzioni etc...
+  plug(name, fn) {
+    this[name] = fn;
   }
 
-  propagateChange (a, path) {
+  addComponent(key, factoryFn) {
+    this.componentsRegistry[key] = factoryFn;
+    return this;
+  }
+
+  propagateChange(a, path) {
     const sonSInstance = this.istances.filter(e => e.parentId === a.id)
     sonSInstance.forEach(sonIstance => {
       if (path && get(sonIstance.model, path)) {
-        console.log('Match between the data sent from parent and the props of the childs')
+        this.$log.log('Match between the data sent from parent and the props of the childs')
         if (sonIstance.onPropsChange && typeof sonIstance.onPropsChange === 'function') {
           // passing the model and a reference to events
           const x = Object.assign(sonIstance.model, sonIstance.events)
@@ -38,13 +46,13 @@ export default class Luce {
     })
   }
 
-  proxyMe (source, a) {
+  proxyMe(source, a) {
     const $e = this
     a.model = onChange(source, function (path, value, previousValue) {
-      // console.log('Model:', this);
-      // console.log(`path: ${path}`);
+      // this.$log.log('Model:', this);
+      // this.$log.log(`path: ${path}`);
       // if(value && previousValue){
-      //     console.log(`new: ${JSON.stringify(value)} - old: ${JSON.stringify(previousValue)}`);
+      //     this.$log.log(`new: ${JSON.stringify(value)} - old: ${JSON.stringify(previousValue)}`);
       // }
       const instance = $e.istances.find(e => e.id === a.id)
       if (instance) {
@@ -59,7 +67,7 @@ export default class Luce {
     })
   }
 
-  isInDadAndChild (obj, arr) {
+  isInDadAndChild(obj, arr) {
     if (obj === null || arr === undefined) return
     for (let a = 0; a < arr.length; a++) {
       const key = arr[a]
@@ -70,7 +78,7 @@ export default class Luce {
     return false
   }
 
-  createOrGetCachedIstance (key, id, element, props, parent) {
+  createOrGetCachedIstance(key, id, element, props, parent) {
     const $e = this
     if (!id) {
       const randomId = Math.floor(Math.random() * 1000000)
@@ -89,7 +97,7 @@ export default class Luce {
       // running the init of the component
       if (a.onInit && typeof a.onInit === 'function') {
         // passing the model and a reference to events and router
-        const scope = Object.assign(a.model, a.events, { $router: $e.router, $http: $e.http, $ele: a.element })
+        const scope = Object.assign(a.model, a.events, { $router: $e.router, $http: $e.http, $ele: a.element, $log: $e.$log })
         a.onInit.call(scope)
       }
       return a
@@ -99,7 +107,7 @@ export default class Luce {
     }
   }
 
-  initComputed (scope, computed) {
+  initComputed(scope, computed) {
     scope._computedWatchers = Object.create(null)
     for (const key in computed) {
       const valueFn = computed[key]
@@ -109,8 +117,8 @@ export default class Luce {
         const props = {
           configurable: true,
           enumerable: true,
-          set () { },
-          get () {
+          set() { },
+          get() {
             const watcher = scope._computedWatchers && scope._computedWatchers[key]
             if (watcher) return watcher.value
           }
@@ -120,7 +128,7 @@ export default class Luce {
     }
   }
 
-  checkComponentThree (root, componentInstance) {
+  checkComponentThree(root, componentInstance) {
     const child = root.querySelectorAll('[data-component]')
     const props = root.querySelectorAll('[data-props]')
     child.forEach(element => {
@@ -156,7 +164,7 @@ export default class Luce {
     })
   }
 
-  compiledTemplate (component) {
+  compiledTemplate(component) {
     return component.template.call(Object.assign({
       name: component.name,
       id: component.id,
@@ -164,7 +172,7 @@ export default class Luce {
     }))
   }
 
-  rootRender (root, key, urlParams) {
+  rootRender(root, key, urlParams) {
     this.router.params = Object.assign({}, urlParams)
     const componentInstance = this.createOrGetCachedIstance(key, null, root, null, root)
     render(this.compiledTemplate(componentInstance), root)
@@ -172,10 +180,10 @@ export default class Luce {
     this.mapEvents(root, componentInstance)
     // Check component three
     this.checkComponentThree(root, componentInstance)
-    // console.log('Components istances: ', this.istances);
+    // this.$log.log('Components istances: ', this.istances);
   }
 
-  getTree (node, component) {
+  getTree(node, component) {
     let r = { tag: node.nodeName, element: node, component: component }
     for (let i = 0; i < node.attributes.length; i++) {
       const a = node.attributes[i]
@@ -208,18 +216,18 @@ export default class Luce {
     return r
   }
 
-  notAlreadyPresent (id, item) {
+  notAlreadyPresent(id, item) {
     const result = this.events[id].findIndex(e => e.element === item.element && e.type === item.type && e.action === item.action)
     return result === -1
   }
 
-  containsObject (id, item) {
+  containsObject(id, item) {
     const result = this.tempEvents[id].findIndex(e => e.element === item.element && e.type === item.type && e.action === item.action)
     return result !== -1
   }
 
-  checkEventList (componentInstance) {
-    // console.log(this.events[componentInstance.id], this.tempEvents[componentInstance.id]);
+  checkEventList(componentInstance) {
+    // this.$log.log(this.events[componentInstance.id], this.tempEvents[componentInstance.id]);
     const index = []
     for (let x = 0; x < this.events[componentInstance.id].length; x++) {
       const elem = this.events[componentInstance.id][x]
@@ -237,40 +245,40 @@ export default class Luce {
     }
   }
 
-  checkComponentList () {
+  checkComponentList() {
     const $e = this
     for (let a = 0; a < this.istances.length; a++) {
       const instance = this.istances[a]
       if (document.getElementById(instance.id)) {
-        // console.log(`Component ${instance.id } is in page.`);
+        // this.$log.log(`Component ${instance.id } is in page.`);
       } else {
         if (instance.onDestroy && typeof instance.onDestroy === 'function') {
           // passing the model and a reference to events and router
-          const scope = Object.assign(instance.model, instance.events, { $router: $e.router, $http: $e.http, $ele: instance.element })
+          const scope = Object.assign(instance.model, instance.events, { $router: $e.router, $http: $e.http, $ele: instance.element, $log: $e.$log })
           instance.onDestroy.call(scope)
         }
-        console.log(`Component ${instance.id} removed.`)
+        this.$log.log(`Component ${instance.id} removed.`)
         this.istances.splice(a, 1)
       }
     }
   }
 
-  mapEvents (root, componentInstance) {
+  mapEvents(root, componentInstance) {
     this.tempEvents = {}
     this.events[componentInstance.id] = this.events[componentInstance.id] || []
     this.tempEvents[componentInstance.id] = this.tempEvents[componentInstance.id] || []
     // 1) Events handlers for USER EVENTS via component methods
     // only events of the component but NOT the ones inside data-components
     const three = this.getTree(root, componentInstance.id)
-    console.log('DOM Three :', three)
-    // console.log('Three :', this.tempEvents);
+    this.$log.log('DOM Three :', three)
+    // this.$log.log('Three :', this.tempEvents);
     const that = this
     this.tempEvents[componentInstance.id].forEach((event, i) => {
       if (that.notAlreadyPresent(componentInstance.id, event)) {
         that.events[componentInstance.id].push(event)
         that.addListners(event, componentInstance)
       } else {
-        // console.log('Already present: ', event);
+        // this.$log.log('Already present: ', event);
       }
     })
     this.checkEventList(componentInstance)
@@ -286,32 +294,32 @@ export default class Luce {
       }
     })
 
-    // console.log('Events: ', this.events);
+    // this.$log.log('Events: ', this.events);
   }
 
-  addListners (htmlElement, componentInstance) {
+  addListners(htmlElement, componentInstance) {
     const $e = this
     htmlElement.element.addEventListener(htmlElement.type, function (e) {
       // passing the model and a reference to events, router and the html element itself
       const scope = Object.assign(componentInstance.model, componentInstance.events, { $router: $e.router, $http: $e.http, $ele: componentInstance.element })
       const params = htmlElement.params ? [e, ...htmlElement.params] : [e]
       componentInstance.events[htmlElement.action].apply(scope, params)
-      // console.log(`Updated model after ${htmlElement.type} event, triggering action: ${htmlElement.action}`);
+      // this.$log.log(`Updated model after ${htmlElement.type} event, triggering action: ${htmlElement.action}`);
     })
   }
 
-  removeListners (htmlElement, componentInstance) {
+  removeListners(htmlElement, componentInstance) {
     const $e = this
     htmlElement.element.removeEventListener(htmlElement.type, function (e) {
       // passing the model and a reference to events, router and the html element itself
       const scope = Object.assign(componentInstance.model, componentInstance.events, { $router: $e.router, $http: $e.http, $ele: componentInstance.element })
       const params = htmlElement.params ? [e, ...htmlElement.params] : [e]
       componentInstance.events[htmlElement.action].apply(scope, params)
-      // console.log(`Removed event listners for ${htmlElement.type} event, triggering action: ${htmlElement.action}`);
+      // this.$log.log(`Removed event listners for ${htmlElement.type} event, triggering action: ${htmlElement.action}`);
     })
   }
 
-  removeAllListnersInPage () {
+  removeAllListnersInPage() {
     this.istances.forEach(istance => {
       this.events[istance.id].forEach(event => {
         this.removeListners(event, istance)
