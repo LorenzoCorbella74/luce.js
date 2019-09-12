@@ -24,7 +24,7 @@ const extractUrlParams = (route, pathname) => {
 
 export default (engine, mainTag) => {
   const routes = []
-  const notFound = () => {}
+  const notFound = () => { }
   let lastPathname
 
   const router = {}
@@ -49,10 +49,21 @@ export default (engine, mainTag) => {
     const urlParams = extractUrlParams(currentRoute, pathname)
 
     // removing events, then istances, then tempEvents...
-    engine.removeAllListnersInPage()
+    router.beforeChange(engine);
+    engine.removeAllListnersInPage()  // removes all events
     engine.istances = []
     engine.tempEvents = {}
-    engine.rootRender(mainTag, currentRoute.componentName, urlParams)
+    engine.rootRender(mainTag, currentRoute.componentName, urlParams);
+    router.afterChange(engine);
+  }
+
+  router.beforeChange = (engine) => (callback) => {
+    callback(engine);
+    return router;
+  }
+  router.afterChange = (engine) => (callback) => {
+    callback(engine);
+    return router;
   }
 
   router.addRoute = (path, componentName) => {

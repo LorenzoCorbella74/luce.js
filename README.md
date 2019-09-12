@@ -1,22 +1,23 @@
 # Luce.js
 
-Yet another Front end framework with all the main features of the "famous" JS frameworks, developed only to prove myself that "we can do it". To have better performance than the solutions adopting Virtual DOM I have used the Templating & Rendering engine of [lit-html](https://github.com/polymer/lit-html) while for data reactivity the library [on-change](https://github.com/sindresorhus/on-change) has been used.
+Yet another Front end framework with all the main features of the "famous" frameworks, developed only to prove myself that "we can do it". To have better performance than the solutions adopting Virtual DOM I have used the Templating & Rendering engine of [lit-html](https://github.com/polymer/lit-html) while for reacting to data changes the library [on-change](https://github.com/sindresorhus/on-change) has been used.
 
 ## FEATURES
 - [x] Components, nested components and multiple istances of the same component
 - [x] Components API similar to [Vue.js](https://vuejs.org) with the reactive data model proxied from the```data```property and```Computed properties```
-- [x] Component hooks: onInit, onPropsChange (with check between the change of the data of the parent and the requested property from the child), onDestroy
+- [x] Component hooks: onInit, onPropsChange, onDestroy
 - [x] Two way data binding and data reactivity on primitives, objects and arrays 
-- [x] wrapper of the [fetch API](https://github.com/github/fetch) for HTTP requests
+- [x] Wrapper of the [fetch API](https://github.com/github/fetch) for HTTP requests
 - [x] Client side routing system based on [History API](https://developer.mozilla.org/en-US/docs/Web/API/History), routes with parameters, 
 - [x] Filters in template as pure function
 - [x] Props from a parent component to child components
 - [x] Automatic management of events on the single component instance
+- [x] Debug mode (no logging if debug:false...) 
 
 ### TODO
 - [ ] Event bus: shared state management
 - [ ] queue for multiple data changes triggering only one rerendering of the specific component
-- [ ] Global Error handler and error messages and debug mode  
+- [ ] Global Error handler and error messages 
 
 ## BUGS
 - data reactivity on objects shared among different components
@@ -24,7 +25,7 @@ Yet another Front end framework with all the main features of the "famous" JS fr
 # Documentation
 
 ## Demo
-Check the [sample app](https://github.com/LorenzoCorbella74/sample-app-for-luce.js) running an (almost) updated version of the framework.
+Check the [sample app](https://github.com/LorenzoCorbella74/sample-app-for-luce.js) running an updated version of the framework.
 
 ## Bootstrap
 
@@ -36,9 +37,9 @@ import Luce from 'lucejs':
 
 window.onload = function () {
 
-    const mainTag = document.getElementById('output');
+    const mainTag = document.getElementById('output');  // root of the app
 
-    const app = new Luce(mainTag);
+    const app = new Luce(mainTag, {debug:true});        // pass a configuration object
 
     // registering components
     app.addComponent('dad-component', dadCtrl)
@@ -54,7 +55,7 @@ window.onload = function () {
 
 Each component has in one single ```.js```file the function responsible for the compilation of the template and the object representing the component, containing the component name, model data, functions associated with events, computed properties and component hooks. For didactic purpose I haven't used the events of [lit-html](https://github.com/polymer/lit-html))so  events have been automatically added and removed according to the life cycle of the component and its presence in the current route. Events are registered with the attribute  ```data-event="<event type>:<action name>"```. It's higly recommeded to use in the root of the component  a class```class=${uppercase(this.name)}``` to distinguish the style of the component in a .sass distinct file,  while it's mandatory to have an id```id="${this.id}"``` which is injected during the creation of the different istances and then used by the engine to manage the cached istances.
 
-To have nested components just place in the component template a div with the attribute ```data-component="<name of the component>"```. Porperties passed from a parent to child components are defined by the attribute ```data-props="<property x name>:<property x name>..."```. Luce.js injects ```$ele``` for accessing the HTML root of the component inside each component. For filter function inside the template just use ```pure functions```.
+To have nested components just place in the component template a div with the attribute ```data-component="<name of the component>"```. Porperties passed from a parent to child components are defined by the attribute ```data-props="<property x name>:<property x name>..."```. Luce.js injects ```$ele``` for accessing the HTML root of the component inside each component and ```$log``` for logging accordin to the debug flag passed during the bootstrap phase. For filter functions inside the template just use ```pure functions```.
 
 ```javascript
 
@@ -104,13 +105,13 @@ export function dadCtrl (id) {
 ```
 
 ## Router
-To use the provided router during the bootstrap of the app just map the URLs with the associated component to be displayed, set the 'fallback' component and start listening for  URL change:
+To use the provided router during the bootstrap of the app just map the URLs with the associated component to be displayed, set the 'fallback' component and start listening for URL changes:
 ```javascript
 window.onload = function () {
 
-    const mainTag = document.getElementById('output');
+    const root = document.getElementById('output');  // the root of the app
 
-    const app = new Luce(mainTag);
+    const app = new Luce(root, {debug:true});        // pass the root and a configuration obj
 
     // registering components
     app.addComponent('dad-component', dadCtrl)
@@ -125,7 +126,9 @@ window.onload = function () {
         .addRoute('/about', 'about-component')
         .addRoute('/about/:id/:counter', 'about-component')
         .ifNotFound('not-found-component')
-        .start();
+        .start()
+        .beforeChange( ($e)=> $e.main.classList.add('fade'))
+        .afterChange( ($e)=> $e.main.classList.remove('fade'))
 
 }
 ```
@@ -184,7 +187,7 @@ HTML5, CSS, Javascript, [lit-html](https://github.com/polymer/lit-html),
 
 ## Versioning
 
-Versione 0.1.0
+Versione 0.1.6
 
 ## License
 
