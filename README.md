@@ -109,27 +109,28 @@ To use the provided router during the bootstrap of the app just map the URLs wit
 ```javascript
 window.onload = function () {
 
-    const root = document.getElementById('output');  // the root of the app
+    const root = document.getElementById('root');  // root of the app
 
-    const app = new Luce(root, {debug:true});        // pass the root and a configuration obj
+    const app = new Luce(root, { debug: true });   // passing the root and a config obj
 
     // registering components
     app.addComponent('dad-component', dadCtrl)
         .addComponent('child-component', childCtrl)
         .addComponent('shared-component', sharedCtrl)
         .addComponent('about-component', aboutCtrl)
-        .addComponent('not-found-component', notFoundCtrl);
+        .addComponent('not-found-component', notFoundCtrl)
 
     // rendering the root with FE ROUTER
     app.router
+        // page fade animation 
+        .beforeChange((luce) => luce.main.classList.add('fade'))
+        .afterChange( (luce) => luce.main.classList.remove('fade'))
+        // mapping path
         .addRoute('/', 'dad-component')
         .addRoute('/about', 'about-component')
         .addRoute('/about/:id/:counter', 'about-component')
         .ifNotFound('not-found-component')
         .start()
-        .beforeChange(($e)=> $e.main.classList.add('fade'))
-        .afterChange(($e)=> $e.main.classList.remove('fade'))
-
 }
 ```
 
