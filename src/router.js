@@ -49,21 +49,21 @@ export default (engine, mainTag) => {
     const urlParams = extractUrlParams(currentRoute, pathname)
 
     // removing events, then istances, then tempEvents...
-    router.onBeforeRouteChange.call(engine)
+    router.onBeforeRouteChange.call(null, engine)
     engine.removeAllListnersInPage() // removes all events
     engine.istances = []
     engine.tempEvents = {}
     engine.rootRender(mainTag, currentRoute.componentName, urlParams)
-    router.onAfterRouteChange.call(engine)
+    router.onAfterRouteChange.call(null, engine)
   }
 
   router.beforeChange = (callback) => {
-    router.onBeforeRouteChange = callback;
+    router.onBeforeRouteChange = callback
     return router
   }
 
   router.afterChange = (callback) => {
-    router.onAfterRouteChange = callback;
+    router.onAfterRouteChange = callback
     return router
   }
 
