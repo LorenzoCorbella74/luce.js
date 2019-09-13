@@ -187,7 +187,7 @@ HTML5, CSS, Javascript, [lit-html](https://github.com/polymer/lit-html),
 
 ## Versioning
 
-Versione 0.1.7
+Versione 0.1.8
 
 ## License
 

@@ -1,6 +1,6 @@
 {
   "name": "lucejs",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "my personal front end framework",
   "main": "dist/index.js",
   "umd:main": "dist/index.umd.js",
