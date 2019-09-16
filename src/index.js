@@ -12,7 +12,7 @@ import onChange from 'on-change'
 
 export default class Luce {
   constructor (main, options = {}) {
-    this.VERSION = '0.2.0';
+    this.VERSION = '0.2.1';
     this.tempEvents = {};
     this.events = {};
     this.componentsRegistry = {};
