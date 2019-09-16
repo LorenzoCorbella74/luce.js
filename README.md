@@ -4,7 +4,7 @@ Yet another Front end framework with all the main features of the "famous" frame
 
 ## FEATURES
 - [x] Components, nested components and multiple istances of the same component
-- [x] Components API similar to [Vue.js](https://vuejs.org) with the reactive data model proxied from the```data```property and```Computed properties```
+- [x] Components API similar to [Vue.js](https://vuejs.org) with the reactive data model proxied from the ```data``` property and ```Computed properties```
 - [x] Component hooks: onInit, onPropsChange, onDestroy
 - [x] Two way data binding and data reactivity on primitives, objects and arrays 
 - [x] Wrapper of the [fetch API](https://github.com/github/fetch) for HTTP requests
@@ -13,9 +13,10 @@ Yet another Front end framework with all the main features of the "famous" frame
 - [x] Props from a parent component to child components
 - [x] Automatic management of events on the single component instance
 - [x] Debug mode (no logging if debug:false...) 
+- [x] Event bus: ```.emit()```, ```.on()``` to subscribe and ```.off()``` to unsubscribe
 
 ### TODO
-- [ ] Event bus: shared state management
+- [ ] Run function during bootstrap to load configurations, service inizialisation etc 
 - [ ] queue for multiple data changes triggering only one rerendering of the specific component
 - [ ] Global Error handler and error messages 
 
@@ -55,7 +56,7 @@ window.onload = function () {
 
 Each component has in one single ```.js```file the function responsible for the compilation of the template and the object representing the component, containing the component name, model data, functions associated with events, computed properties and component hooks. For didactic purpose I haven't used the events of [lit-html](https://github.com/polymer/lit-html))so  events have been automatically added and removed according to the life cycle of the component and its presence in the current route. Events are registered with the attribute  ```data-event="<event type>:<action name>"```. It's higly recommeded to use in the root of the component  a class```class=${uppercase(this.name)}``` to distinguish the style of the component in a .sass distinct file,  while it's mandatory to have an id```id="${this.id}"``` which is injected during the creation of the different istances and then used by the engine to manage the cached istances.
 
-To have nested components just place in the component template a div with the attribute ```data-component="<name of the component>"```. Porperties passed from a parent to child components are defined by the attribute ```data-props="<property x name>:<property x name>..."```. Luce.js injects ```$ele``` for accessing the HTML root of the component inside each component and ```$log``` for logging accordin to the debug flag passed during the bootstrap phase. For filter functions inside the template just use ```pure functions```.
+To have nested components just place in the component template a div with the attribute ```data-component="<name of the component>"```. Porperties passed from a parent to child components are defined by the attribute ```data-props="<property x name>:<property x name>..."```. Luce.js injects, inside each component, ```$ele``` for accessing the HTML root of the component, ```$log``` for logging (according to the debug flag passed during the bootstrap phase) and ```$event``` for emit, subscribe and unsubscribe to custom events. For filter functions inside the template just use ```pure functions```.
 
 ```javascript
 
@@ -97,7 +98,11 @@ export function dadCtrl (id) {
                 this.counter--;
             }
         }
-        onInit(){ },
+        onInit(){
+            this.$event.on('from-child', (payload)=>{
+                this.$log.log(payload);
+            });
+         },
         onPropsChange(){ },
         onDestroy(){ }
     }
@@ -188,7 +193,7 @@ HTML5, CSS, Javascript, [lit-html](https://github.com/polymer/lit-html),
 
 ## Versioning
 
-Versione 0.1.9
+Versione 0.2.0
 
 ## License
 
