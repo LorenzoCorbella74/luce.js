@@ -2,7 +2,7 @@ import Watcher from './watcher'
 import router from './router'
 import http from './http'
 import logger from './logger'
-import eventBus from './eventsBus';
+import eventBus from './eventsBus'
 
 // external dependancies
 import set from 'lodash.set'
@@ -12,16 +12,16 @@ import onChange from 'on-change'
 
 export default class Luce {
   constructor (main, options = {}) {
-    this.VERSION = '0.2.1';
-    this.tempEvents = {};
-    this.events = {};
-    this.componentsRegistry = {};
-    this.istances = [];
-    this.main = main;
-    this.plug('router', router(this, main));
-    this.plug('http', http);
-    this.plug('$log', logger(options.debug));
-    this.plug('$event', eventBus());
+    this.VERSION = '0.2.1'
+    this.tempEvents = {}
+    this.events = {}
+    this.componentsRegistry = {}
+    this.istances = []
+    this.main = main
+    this.plug('router', router(this, main))
+    this.plug('http', http)
+    this.plug('$log', logger(options.debug))
+    this.plug('$event', eventBus())
   }
 
   // to extend obj/function
@@ -100,7 +100,7 @@ export default class Luce {
       // running the init of the component
       if (a.onInit && typeof a.onInit === 'function') {
         // passing the model and a reference to events and router
-        const scope = Object.assign(a.model, a.events, { $router: $e.router, $http: $e.http, $ele: a.element, $log: $e.$log, $event: $e.$event });
+        const scope = Object.assign(a.model, a.events, { $router: $e.router, $http: $e.http, $ele: a.element, $log: $e.$log, $event: $e.$event })
         a.onInit.call(scope)
       }
       return a
@@ -132,6 +132,7 @@ export default class Luce {
   }
 
   checkComponentThree (root, componentInstance) {
+    const $e = this
     const child = root.querySelectorAll('[data-component]')
     const props = root.querySelectorAll('[data-props]')
     child.forEach(element => {
@@ -152,7 +153,7 @@ export default class Luce {
         // TODO: only when changed
         if (sonInstance.onPropsChange && typeof sonInstance.onPropsChange === 'function') {
           // passing the model and a reference to events
-          const scope = Object.assign(sonInstance.model, sonInstance.events,  { $router: $e.router, $http: $e.http, $ele: a.element, $log: $e.$log, $event: $e.$event });
+          const scope = Object.assign(sonInstance.model, sonInstance.events, { $router: $e.router, $http: $e.http, $ele: sonInstance.element, $log: $e.$log, $event: $e.$event })
           sonInstance.onPropsChange.call(scope)
         }
         // events are registered only the first time...
@@ -257,7 +258,7 @@ export default class Luce {
       } else {
         if (instance.onDestroy && typeof instance.onDestroy === 'function') {
           // passing the model and a reference to events and router
-          const scope = Object.assign(instance.model, instance.events, { $router: $e.router, $http: $e.http, $ele: a.element, $log: $e.$log, $event: $e.$event });
+          const scope = Object.assign(instance.model, instance.events, { $router: $e.router, $http: $e.http, $ele: a.element, $log: $e.$log, $event: $e.$event })
           instance.onDestroy.call(scope)
         }
         this.$log.log(`Component ${instance.id} removed.`)
@@ -272,7 +273,7 @@ export default class Luce {
     this.tempEvents[componentInstance.id] = this.tempEvents[componentInstance.id] || []
     // 1) Events handlers for USER EVENTS via component methods
     // only events of the component but NOT the ones inside data-components
-    const three = this.getTree(root, componentInstance.id)
+    /* const three = */ this.getTree(root, componentInstance.id)
     // this.$log.log('DOM Three :', three)
     // this.$log.log('Three :', this.tempEvents);
     const that = this
@@ -312,7 +313,7 @@ export default class Luce {
   handleEvent (componentInstance, htmlElement, $e) {
     return function (e) {
       // passing the model and a reference to events, router and the html element itself
-      const scope = Object.assign(componentInstance.model, componentInstance.events, { $router: $e.router, $http: $e.http, $ele: componentInstance.element,  $log: $e.$log, $event: $e.$event  })
+      const scope = Object.assign(componentInstance.model, componentInstance.events, { $router: $e.router, $http: $e.http, $ele: componentInstance.element, $log: $e.$log, $event: $e.$event })
       const params = htmlElement.params ? [e, ...htmlElement.params] : [e]
       componentInstance.events[htmlElement.action].apply(scope, params)
       // $e.$log.log(`listners for ${htmlElement.type} event, triggering action: ${htmlElement.action}`);

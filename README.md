@@ -1,5 +1,10 @@
 # Luce.js
 
+![](https://img.shields.io/badge/type-JS_Library-brightgreen.svg "Project type")
+![](https://img.shields.io/github/repo-size/LorenzoCorbella74/luce.js "Repository size")
+![](https://img.shields.io/github/package-json/v/LorenzoCorbella74/luce.js)
+
+
 Yet another Front end framework with all the main features of the "famous" frameworks, developed only to prove myself that "we can do it". To have better performance than the solutions adopting Virtual DOM I have used the Templating & Rendering engine of [lit-html](https://github.com/polymer/lit-html) while for reacting to data changes the library [on-change](https://github.com/sindresorhus/on-change) has been used.
 
 ## FEATURES
@@ -16,7 +21,7 @@ Yet another Front end framework with all the main features of the "famous" frame
 - [x] Event bus: ```.emit()```, ```.on()``` to subscribe and ```.off()``` to unsubscribe
 
 ### TODO
-- [ ] Run function during bootstrap to load configurations, service inizialisation etc 
+- [ ] Run function during bootstrap to load configurations, service inizialisations etc 
 - [ ] queue for multiple data changes triggering only one rerendering of the specific component
 - [ ] Global Error handler and error messages 
 
@@ -56,7 +61,7 @@ window.onload = function () {
 
 Each component has in one single ```.js```file the function responsible for the compilation of the template and the object representing the component, containing the component name, model data, functions associated with events, computed properties and component hooks. For didactic purpose I haven't used the events of [lit-html](https://github.com/polymer/lit-html))so  events have been automatically added and removed according to the life cycle of the component and its presence in the current route. Events are registered with the attribute  ```data-event="<event type>:<action name>"```. It's higly recommeded to use in the root of the component  a class```class=${uppercase(this.name)}``` to distinguish the style of the component in a .sass distinct file,  while it's mandatory to have an id```id="${this.id}"``` which is injected during the creation of the different istances and then used by the engine to manage the cached istances.
 
-To have nested components just place in the component template a div with the attribute ```data-component="<name of the component>"```. Porperties passed from a parent to child components are defined by the attribute ```data-props="<property x name>:<property x name>..."```. Luce.js injects, inside each component, ```$ele``` for accessing the HTML root of the component, ```$log``` for logging (according to the debug flag passed during the bootstrap phase) and ```$event``` for emit, subscribe and unsubscribe to custom events. For filter functions inside the template just use ```pure functions```.
+To have nested components just place in the component template a div with the attribute ```data-component="<name of the component>"```. Porperties passed from a parent to child components are defined by the attribute ```data-props="<property x name>:<property x name>..."```. Luce.js injects, inside each component, ```$ele``` for accessing the HTML root of the component, ```$log``` for logging (according to the debug flag passed during the bootstrap phase) and ```$event``` for emit, subscribe (```.on()```) and unsubscribe (```.off()```)to custom events. For filter functions inside the template just use ```pure functions```.
 
 ```javascript
 
@@ -104,7 +109,11 @@ export function dadCtrl (id) {
             });
          },
         onPropsChange(){ },
-        onDestroy(){ }
+        onDestroy(){ 
+             this.$event.off('from-child', (payload)=>{
+                this.$log.log(payload);
+            });
+        }
     }
 };
 ```
