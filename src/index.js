@@ -11,22 +11,38 @@ import { render } from 'lit-html'
 import onChange from 'on-change'
 
 export default class Luce {
-  constructor (main, options = {}) {
+  constructor(main, options = {}) {
     this.VERSION = '0.2.1'
     this.tempEvents = {}
     this.events = {}
     this.componentsRegistry = {}
     this.istances = []
+    this.plugged = []
     this.main = main
     this.plug('router', router(this, main))
     this.plug('http', http)
-    this.plug('$log', logger(options.debug))
-    this.plug('$event', eventBus())
+    this.plug('log', logger(options.debug))
+    this.plug('event', eventBus())
   }
 
-  // to extend obj/function
+  // FUTURE: middleware like express.js
+  use () {
+
+  }
+
+  // to extend the prototype of lucejs to be used in components
   plug (name, fn) {
-    this[name] = fn
+    this[name] = fn;
+    this.plugged.push(name);
+  }
+
+  injectObjects (istance) {
+    let allPluggables = {};
+    this.plugged.forEach(name => {
+      allPluggables[`$${name}`] = this[name];
+    });
+    allPluggables.$ele = istance.element;
+    return allPluggables;
   }
 
   addComponent (key, factoryFn) {
@@ -38,10 +54,10 @@ export default class Luce {
     const sonSInstance = this.istances.filter(e => e.parentId === a.id)
     sonSInstance.forEach(sonIstance => {
       if (path && get(sonIstance.model, path)) {
-        this.$log.log('Match between the data sent from parent and the props of the childs')
+        // this.$log.log('Match between the data sent from parent and the props of the childs')
         if (sonIstance.onPropsChange && typeof sonIstance.onPropsChange === 'function') {
           // passing the model and a reference to events
-          const x = Object.assign(sonIstance.model, sonIstance.events)
+          const x = Object.assign(sonIstance.model, sonIstance.events, this.injectObjects(sonIstance))
           sonIstance.onPropsChange.call(x)
         }
       }
@@ -82,7 +98,6 @@ export default class Luce {
   }
 
   createOrGetCachedIstance (key, id, element, props, parent) {
-    const $e = this
     if (!id) {
       const randomId = Math.floor(Math.random() * 1000000)
       const a = this.componentsRegistry[key](`${key}:${randomId}`)
@@ -95,12 +110,12 @@ export default class Luce {
 
       this.proxyMe(a.data, a) // a.model is listening for changes
 
-      if (a.computed) this.initComputed(a.model, a.computed)
-      this.istances.push(a)
+      if (a.computed) this.initComputed(a.model, a.computed) // computed property
+      this.istances.push(a)  // saving the istance
       // running the init of the component
       if (a.onInit && typeof a.onInit === 'function') {
         // passing the model and a reference to events and router
-        const scope = Object.assign(a.model, a.events, { $router: $e.router, $http: $e.http, $ele: a.element, $log: $e.$log, $event: $e.$event })
+        const scope = Object.assign(a.model, a.events, this.injectObjects(a))
         a.onInit.call(scope)
       }
       return a
@@ -132,7 +147,6 @@ export default class Luce {
   }
 
   checkComponentThree (root, componentInstance) {
-    const $e = this
     const child = root.querySelectorAll('[data-component]')
     const props = root.querySelectorAll('[data-props]')
     child.forEach(element => {
@@ -153,7 +167,7 @@ export default class Luce {
         // TODO: only when changed
         if (sonInstance.onPropsChange && typeof sonInstance.onPropsChange === 'function') {
           // passing the model and a reference to events
-          const scope = Object.assign(sonInstance.model, sonInstance.events, { $router: $e.router, $http: $e.http, $ele: sonInstance.element, $log: $e.$log, $event: $e.$event })
+          const scope = Object.assign(sonInstance.model, sonInstance.events, this.injectObjects(sonInstance))
           sonInstance.onPropsChange.call(scope)
         }
         // events are registered only the first time...
@@ -169,11 +183,7 @@ export default class Luce {
   }
 
   compiledTemplate (component) {
-    return component.template.call(Object.assign({
-      name: component.name,
-      id: component.id,
-      ...component.model
-    }))
+    return component.template.call(Object.assign({ name: component.name, id: component.id, ...component.model }))
   }
 
   rootRender (root, key, urlParams) {
@@ -206,7 +216,6 @@ export default class Luce {
         r.children.push(this.getTree(a, r.component))
       }
     }
-
     if ('data-event' in r) {
       this.tempEvents[component] = this.tempEvents[component] || []
       const str = r['data-event'].split(':')
@@ -250,7 +259,6 @@ export default class Luce {
   }
 
   checkComponentList () {
-    const $e = this
     for (let a = 0; a < this.istances.length; a++) {
       const instance = this.istances[a]
       if (document.getElementById(instance.id)) {
@@ -258,7 +266,7 @@ export default class Luce {
       } else {
         if (instance.onDestroy && typeof instance.onDestroy === 'function') {
           // passing the model and a reference to events and router
-          const scope = Object.assign(instance.model, instance.events, { $router: $e.router, $http: $e.http, $ele: a.element, $log: $e.$log, $event: $e.$event })
+          const scope = Object.assign(instance.model, instance.events, this.injectObjects(instance))
           instance.onDestroy.call(scope)
         }
         this.$log.log(`Component ${instance.id} removed.`)
@@ -301,19 +309,17 @@ export default class Luce {
   }
 
   addListners (htmlElement, componentInstance) {
-    const $e = this
-    htmlElement.element.addEventListener(htmlElement.type, this.handleEvent(componentInstance, htmlElement, $e))
+    htmlElement.element.addEventListener(htmlElement.type, this.handleEvent(componentInstance, htmlElement, this))
   }
 
   removeListners (htmlElement, componentInstance) {
-    const $e = this
-    htmlElement.element.removeEventListener(htmlElement.type, this.handleEvent(componentInstance, htmlElement, $e))
+    htmlElement.element.removeEventListener(htmlElement.type, this.handleEvent(componentInstance, htmlElement, this))
   }
 
   handleEvent (componentInstance, htmlElement, $e) {
     return function (e) {
       // passing the model and a reference to events, router and the html element itself
-      const scope = Object.assign(componentInstance.model, componentInstance.events, { $router: $e.router, $http: $e.http, $ele: componentInstance.element, $log: $e.$log, $event: $e.$event })
+      const scope = Object.assign(componentInstance.model, componentInstance.events, $e.injectObjects(componentInstance))
       const params = htmlElement.params ? [e, ...htmlElement.params] : [e]
       componentInstance.events[htmlElement.action].apply(scope, params)
       // $e.$log.log(`listners for ${htmlElement.type} event, triggering action: ${htmlElement.action}`);
