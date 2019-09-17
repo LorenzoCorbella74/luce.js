@@ -1,3 +1,5 @@
+import { isTemplatePartActive } from "lit-html"
+
 const ROUTE_PARAMETER_REGEXP = /:(\w+)/g
 const URL_FRAGMENT_REGEXP = '([^\\/]+)'
 const TICKTIME = 200
@@ -23,11 +25,13 @@ const extractUrlParams = (route, pathname) => {
 }
 
 export default (engine, mainTag) => {
-  const routes = []
+  const routes = [] // sono private !!!
   const notFound = () => { }
   let lastPathname
 
   const router = {}
+
+
 
   const checkRoutes = () => {
     const { pathname } = window.location
@@ -65,6 +69,10 @@ export default (engine, mainTag) => {
   router.afterChange = (callback) => {
     router.onAfterRouteChange = callback
     return router
+  }
+
+  router.isActive = () => {
+    return routes.length!=0;
   }
 
   router.addRoute = (path, componentName) => {

@@ -19,9 +19,9 @@ Yet another Front end framework with all the main features of the "famous" frame
 - [x] Automatic management of events on the single component instance
 - [x] Debug mode (no logging if debug:false...) 
 - [x] Event bus: ```.emit()```, ```.on()``` to subscribe and ```.off()``` to unsubscribe
+- [x] Run function during bootstrap to load configurations, service inizialisations etc 
 
 ### TODO
-- [ ] Run function during bootstrap to load configurations, service inizialisations etc 
 - [ ] queue for multiple data changes triggering only one rerendering of the specific component
 - [ ] Global Error handler and error messages 
 
@@ -43,17 +43,36 @@ import Luce from 'lucejs':
 
 window.onload = function () {
 
-    const mainTag = document.getElementById('output');  // root of the app
+    const root = document.getElementById('output');  // root of the app
 
-    const app = new Luce(mainTag, {debug:true});        // pass a configuration object
+    const app = new Luce(root, {debug:true});        // pass a configuration object
 
-    // registering components
+    // init middlewares (optional)
+    app.use((luce,next)=>{
+
+        const config = {
+            URL: 'localhost:3000',
+            language:'en'
+            availableLanguages:['en','ita']
+            ...
+        };
+        luce.plug('config', config); // .plug() injects a $<name> obj in each component (in this case $config)
+
+        luce.next(); // to advance to the next middleware
+
+    })
+    use((luce,next)=>{
+        // do something
+    })
+    use((luce,next)=>{});
+
+    // registering components (required)
     app.addComponent('dad-component', dadCtrl)
        .addComponent('child-component', childCtrl)
-       .addComponent('about-component', aboutCtrl)
+       .addComponent('about-component', aboutCtrl);
         
-        // rendering the root (no ROUTER)
-       .rootRender(mainTag, 'dad-component');
+    // (required) if ROUTER is not used a root and the component to be rendered must be provided
+    app.init(root, 'dad-component');
 }
 ```
 
@@ -144,7 +163,9 @@ window.onload = function () {
         .addRoute('/about', 'about-component')
         .addRoute('/about/:id/:counter', 'about-component')
         .ifNotFound('not-found-component')
-        .start()
+    
+    // start the app (if router is set .init() does not need arguments)
+    app.init()
 }
 ```
 
@@ -202,7 +223,7 @@ HTML5, CSS, Javascript, [lit-html](https://github.com/polymer/lit-html),
 
 ## Versioning
 
-Versione 0.2.1
+Versione 0.2.2
 
 ## License
 
