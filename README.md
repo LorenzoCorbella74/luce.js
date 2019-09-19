@@ -31,7 +31,7 @@ Check the [sample app](https://github.com/LorenzoCorbella74/sample-app-for-luce.
 ## Bugs
 - data reactivity on objects shared among different components
 
-[Documentation](./doc/index.md)
+[DOCUMENTATION](./doc/index.md)
 
 
 ## Built With

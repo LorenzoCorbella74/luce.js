@@ -5,10 +5,11 @@
 - [Http](#http)  
 
 
+[Back](../README.md)
 
 ## Bootstrap
 
-Just import the framework and create an istance,  register the components, optionally set the roouter and the middlewares, and init the framework:
+Just import the framework, create an istance of ***Luce***,  register the components, optionally set the roouter and the middlewares, and init the framework:
 ```javascript
 
 
@@ -106,7 +107,7 @@ export function dadCtrl (id) {
 ```
 
 ## Router
-To use the provided router during the bootstrap of the app just map the URLs with the associated component to be displayed, set the 'fallback' component and start listening for URL changes:
+To use the provided router during the bootstrap of the app just map the URLs with the associated components to be displayed, set the 'fallback' component:
 ```javascript
 window.onload = function () {
 
@@ -137,7 +138,7 @@ window.onload = function () {
 }
 ```
 
-To use links for routing inside the template just use the attribute ```data-navigation``` as follows:
+To use links for routing inside the a tag of the templates just use the attribute ```data-navigation``` as follows:
 ```html
  <nav>
     <a data-navigation href="/about"> About </a>
@@ -145,7 +146,7 @@ To use links for routing inside the template just use the attribute ```data-navi
 </nav>
 ```
 
-In order to access the router navigation methods and read the URl params Luce.js injects inside each component the ```$router```object:
+In order to access the router navigation methods and read the URl params ***Luce*** injects inside each component the ```$router```object:
 ```javascript
 export function aboutCtrl (id) {
     return {
@@ -168,7 +169,7 @@ export function aboutCtrl (id) {
 ```
 
 ## Http
-Luce.js injects inside each component the ```$http```object for HTTP ```.get```, ```.post```, ```.put```, ```.patch```, ```.delete``` requests:
+***Luce*** injects inside each component the ```$http```object for HTTP ```.get```, ```.post```, ```.put```, ```.patch```, ```.delete``` requests:
 
 ```javascript
 async getRandom () {
