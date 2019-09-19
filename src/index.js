@@ -11,7 +11,7 @@ import { render } from 'lit-html'
 import onChange from 'on-change'
 
 export default class Luce {
-  constructor(main, options = {}) {
+  constructor (main, options = {}) {
     this.VERSION = '0.2.2'
     this.tempEvents = {}
     this.events = {}
@@ -19,34 +19,34 @@ export default class Luce {
     this.istances = []
     this.plugged = []
     this.main = main
-    this.middlewares = [];
+    this.middlewares = []
     this.plug('router', router(this, main))
     this.plug('http', http)
     this.plug('log', logger(options.debug))
     this.plug('event', eventBus())
   }
 
-  init(root, componentName){
-    if(this.middlewares.length>0){
-      this.runMiddlewares(0);
+  init (root, componentName) {
+    if (this.middlewares.length > 0) {
+      this.runMiddlewares(0)
     }
-    if(this.router.isActive()){
-      this.router.start();
-    }else if(root && componentName ){
-      this.rootRender(root, componentName);
-    } else{
-      throw new Error('Specificare un elemento root ed un componente da renderizzare in esso') 
+    if (this.router.isActive()) {
+      this.router.start()
+    } else if (root && componentName) {
+      this.rootRender(root, componentName)
+    } else {
+      throw new Error('Specificare un elemento root ed un componente da renderizzare in esso')
     }
   }
 
   // middleware like express.js
   use (fn) {
-    this.middlewares.push(fn);
-    return this;
+    this.middlewares.push(fn)
+    return this
   }
 
   runMiddlewares (index) {
-    const l = this.middlewares.length;
+    const l = this.middlewares.length
     if (index < l) {
       this.middlewares[index].apply(this, [this, () => this.runMiddlewares(index + 1)])
     }
@@ -54,17 +54,17 @@ export default class Luce {
 
   // to extend the prototype of lucejs to be used in components
   plug (name, fn) {
-    this[name] = fn;
-    this.plugged.push(name);
+    this[name] = fn
+    this.plugged.push(name)
   }
 
   injectObjects (istance) {
-    let allPluggables = {};
+    const allPluggables = {}
     this.plugged.forEach(name => {
-      allPluggables[`$${name}`] = this[name];
-    });
-    allPluggables.$ele = istance.element;
-    return allPluggables;
+      allPluggables[`$${name}`] = this[name]
+    })
+    allPluggables.$ele = istance.element
+    return allPluggables
   }
 
   addComponent (key, factoryFn) {
@@ -133,7 +133,7 @@ export default class Luce {
       this.proxyMe(a.data, a) // a.model is listening for changes
 
       if (a.computed) this.initComputed(a.model, a.computed) // computed property
-      this.istances.push(a)  // saving the istance
+      this.istances.push(a) // saving the istance
       // running the init of the component
       if (a.onInit && typeof a.onInit === 'function') {
         // passing the model and a reference to events and router
@@ -209,7 +209,7 @@ export default class Luce {
   }
 
   rootRender (root, key, urlParams) {
-    this.router.params = urlParams? Object.assign({}, urlParams): {};
+    this.router.params = urlParams ? Object.assign({}, urlParams) : {}
     const componentInstance = this.createOrGetCachedIstance(key, null, root, null, root)
     render(this.compiledTemplate(componentInstance), root)
     // Root's events

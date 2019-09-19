@@ -10,7 +10,7 @@ export default () => {
     const ls = listeners.get(e)
     if (ls && ls.length) {
       ls.forEach((l, i) => {
-        if (l === f ) {
+        if (l === f) {
           ls.splice(i, 1)
         }
       })
