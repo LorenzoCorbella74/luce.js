@@ -26,9 +26,9 @@ Check the [wiki](./doc/index.md)
 - [x] Debug mode (no logging if debug:false...) 
 - [x] Event bus: ```.emit()```, ```.on()``` to subscribe and ```.off()``` to unsubscribe to custom events
 - [x] Run function during bootstrap to load configurations, service inizialisations etc 
+- [x] forms validation (basic) 
 
 ### Todo
-- [ ] forms
 - [ ] queue for multiple data changes triggering only one rerendering of the specific component
 - [ ] Global Error handler and error messages 
 
@@ -41,7 +41,7 @@ HTML5, CSS, Javascript, [lit-html](https://github.com/polymer/lit-html), [on-cha
 
 ## Versioning
 
-Versione 0.2.3
+Versione 0.2.98
 
 ## License
 

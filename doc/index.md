@@ -1,6 +1,7 @@
 # Table of contents
 - [Bootstrap](#bootstrap)  
 - [Components](#components)  
+- [Forms](#forms)  
 - [Router](#router)  
 - [Http](#http)  
 
@@ -104,6 +105,24 @@ export function dadCtrl (id) {
         }
     }
 };
+```
+
+## Forms
+***Luce*** injects inside each component the ```$forms```object containing the forms of the relevant component istance, each with the elements to be validated. The form must be marked with the  attributes ```data-form="<name of the form>"``` and the  ```name``` while the items to be validated must have the attributes ```data-validation="<validation rules>"```.
+```html
+    <form data-form="formTest" name="formName" novalidate>
+        <div class="field">
+            <label class="label">Name</label>
+            <div class="control">
+                <input class="input" type="text" placeholder="Your name" name="exampleImput" data-model="form.name" data-validation="required" value="${this.form.name}">
+            </div>
+        </div>
+        <div class="field is-grouped">
+            <div class="control">
+                <button class="button is-link" type="button" data-event="click:validateForm">Submit</button>
+            </div>
+        </div>   
+    </form>
 ```
 
 ## Router

@@ -11,8 +11,8 @@ import { render } from 'lit-html'
 import onChange from 'on-change'
 
 export default class Luce {
-  constructor (main, options = {}) {
-    this.VERSION = '0.2.3'
+  constructor(main, options = {}) {
+    this.VERSION = '0.2.98'
     this.tempEvents = {}
     this.events = {}
     this.componentsRegistry = {}
@@ -64,6 +64,8 @@ export default class Luce {
       allPluggables[`$${name}`] = this[name]
     })
     allPluggables.$ele = istance.element
+    allPluggables.$forms = istance.forms
+    // Object.setPrototypeOf(istance,allPluggables);
     return allPluggables
   }
 
@@ -317,6 +319,7 @@ export default class Luce {
     })
     this.checkEventList(componentInstance)
     this.checkComponentList()
+
     // 2) handlers for user INPUTS (DATA BINDING) -> TODO: remove listners
     const twoWays = root.querySelectorAll('[data-model]') // solo sul componente
     twoWays.forEach((element, i) => {
@@ -327,11 +330,27 @@ export default class Luce {
         }
       }
       if (element.type === 'checkbox' || element.type === 'radio') {
-        element.onkeydown = function () {
-          set(componentInstance.model, propToBind, element.value || element.checked)
+        element.onchange = function () {
+          set(componentInstance.model, propToBind, element.value === 'on' ? element.checked : element.value)
+        }
+      }
+      if (element.tagName === 'SELECT') {
+        element.onchange = function () {
+          set(componentInstance.model, propToBind, element.value)
         }
       }
     })
+
+    // TODO: forms validation
+    componentInstance.forms = componentInstance.forms || []
+    const forms = root.querySelectorAll('[data-form]') // solo sul componente
+    forms.forEach((form, i) => {
+      const arFromNl = Array.from(form.querySelectorAll('[data-validation]'))
+      componentInstance.forms[form.name] = arFromNl.map(e => {
+        return { name: e.name, value: e.value, autofocus: e.autofocus, attributes: e.attributes, checked: e.checked, dataset: e.dataset, element: e }
+      })
+    })
+
     // this.$log.log('Events: ', this.events);
   }
 
