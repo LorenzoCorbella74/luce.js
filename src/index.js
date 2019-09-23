@@ -12,7 +12,7 @@ import onChange from 'on-change'
 
 export default class Luce {
   constructor (main, options = {}) {
-    this.VERSION = '0.2.2'
+    this.VERSION = '0.2.3'
     this.tempEvents = {}
     this.events = {}
     this.componentsRegistry = {}
@@ -320,10 +320,15 @@ export default class Luce {
     // 2) handlers for user INPUTS (DATA BINDING) -> TODO: remove listners
     const twoWays = root.querySelectorAll('[data-model]') // solo sul componente
     twoWays.forEach((element, i) => {
+      const propToBind = element.getAttribute('data-model')
       if (element.type === 'text' || element.type === 'textarea') {
-        const propToBind = element.getAttribute('data-model')
         element.onkeydown = function () {
           set(componentInstance.model, propToBind, element.value)
+        }
+      }
+      if (element.type === 'checkbox' || element.type === 'radio') {
+        element.onkeydown = function () {
+          set(componentInstance.model, propToBind, element.value || element.checked)
         }
       }
     })

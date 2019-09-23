@@ -28,6 +28,7 @@ Check the [wiki](./doc/index.md)
 - [x] Run function during bootstrap to load configurations, service inizialisations etc 
 
 ### Todo
+- [ ] forms
 - [ ] queue for multiple data changes triggering only one rerendering of the specific component
 - [ ] Global Error handler and error messages 
 
@@ -40,7 +41,7 @@ HTML5, CSS, Javascript, [lit-html](https://github.com/polymer/lit-html), [on-cha
 
 ## Versioning
 
-Versione 0.2.2
+Versione 0.2.3
 
 ## License
 
